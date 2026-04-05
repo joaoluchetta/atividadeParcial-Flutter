@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_atividade_parcial/view/cadastro_view.dart';
+import 'package:flutter_atividade_parcial/view/home_view.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -167,7 +168,12 @@ class _LoginViewState extends State<LoginView> {
                     // BOTÃO DE ENTRAR
                     ElevatedButton(
                       onPressed: () {
-                        print("Fazendo login...");
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const HomeView(),
+                          ),
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(
