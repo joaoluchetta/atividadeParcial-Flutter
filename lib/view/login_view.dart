@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_atividade_parcial/view/cadastro_view.dart';
 
 class LoginView extends StatefulWidget {
   const LoginView({super.key});
@@ -27,25 +28,59 @@ class _LoginViewState extends State<LoginView> {
                 padding: const EdgeInsets.all(20),
                 child: Column(
                   children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Icon(
-                          Icons.edit_calendar,
-                          color: Color(0xFF003280),
-                        ),
-                        const SizedBox(width: 10),
-                        const Text(
-                          'iNote',
-                          style: TextStyle(
-                            color: Color(0xFF003280),
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),
+                        Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: const Color(0xFF003280),
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: const Icon(
+                                Icons.edit_calendar,
+                                color: Colors.white,
+                                size: 24,
+                              ),
+                            ),
+                            SizedBox(width: 12),
+                            const Text(
+                              'Schedly',
+                              style: TextStyle(
+                                color: Color(0xFF003280),
+                                fontWeight: FontWeight.bold,
+                                fontSize: 18,
+                              ),
+                            ),
+                          ],
                         ),
                       ],
                     ),
+
                     SizedBox(height: 20),
+
+                    Text(
+                      'Controle seus horários',
+                      style: TextStyle(
+                        fontSize: 26,
+                        fontWeight: FontWeight.bold,
+                        color: Color(0xFF1D1D1D),
+                      ),
+                    ),
+                    SizedBox(height: 8),
+                    Text(
+                      'Insira suas credenciais para acessar sua conta.',
+                      style: TextStyle(
+                        fontSize: 16,
+                        color: Colors.grey,
+                        height: 1.5,
+                      ),
+                    ),
+
+                    SizedBox(height: 20),
+
                     TextField(
                       keyboardType: TextInputType.name,
                       style: const TextStyle(
@@ -63,7 +98,9 @@ class _LoginViewState extends State<LoginView> {
                         ),
                       ),
                     ),
+
                     SizedBox(height: 20),
+
                     TextField(
                       obscureText: _obscureText,
                       keyboardType: TextInputType.visiblePassword,
@@ -160,7 +197,12 @@ class _LoginViewState extends State<LoginView> {
                     // BOTÃO DE CADASTRAR
                     OutlinedButton(
                       onPressed: () {
-                        print("Ir para tela de cadastro");
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const CadastroView(),
+                          ),
+                        );
                       },
                       style: OutlinedButton.styleFrom(
                         side: const BorderSide(
