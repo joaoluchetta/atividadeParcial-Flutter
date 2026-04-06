@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_atividade_parcial/view/sobre_view.dart' show SobreView;
+import 'package:flutter_atividade_parcial/view/agendamento_view.dart';
+import 'package:flutter_atividade_parcial/view/cadastro_cliente_view.dart';
+import 'package:flutter_atividade_parcial/view/sobre_view.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -14,17 +16,10 @@ class _HomeViewState extends State<HomeView> {
 
   final List<Widget> _telas = [
     //Placeholder para a tela de listagem
-    const Center(
-      child: Text('Listagem dos dados aqui', style: TextStyle(fontSize: 20)),
-    ),
+    const AgendamentoView(),
 
     // Índice 1: Placeholder para a tela de Clientes (para não dar erro de limite)
-    const Center(
-      child: Text(
-        'Tela de Clientes em construção',
-        style: TextStyle(fontSize: 20),
-      ),
-    ),
+    const CadastroClienteView(),
 
     const SobreView(),
   ];
@@ -42,6 +37,53 @@ class _HomeViewState extends State<HomeView> {
         backgroundColor: Colors.white,
         elevation: 0,
         titleSpacing: 20,
+
+        leading: IconButton(
+          icon: const Icon(Icons.logout, color: Color(0xFF003280)),
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(15),
+                  ),
+                  title: const Text(
+                    'Sair do App',
+                    style: TextStyle(color: Color(0xFF003280)),
+                  ),
+                  content: const Text(
+                    'Você deseja realmente realizar o logout?',
+                  ),
+                  actions: [
+                    TextButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                      },
+                      child: const Text(
+                        'Cancelar',
+                        style: TextStyle(color: Colors.grey),
+                      ),
+                    ),
+                    ElevatedButton(
+                      onPressed: () {
+                        Navigator.pop(context);
+                        Navigator.pop(context);
+                      },
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                      ),
+                      child: const Text(
+                        'Sair',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+        ),
 
         title: Row(
           children: [
@@ -87,6 +129,7 @@ class _HomeViewState extends State<HomeView> {
           const SizedBox(width: 10),
         ],
       ),
+
       body: _telas[_abaAtual],
       floatingActionButton: FloatingActionButton(
         onPressed: () {
