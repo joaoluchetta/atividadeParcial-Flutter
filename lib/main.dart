@@ -5,10 +5,7 @@ import 'package:flutter_atividade_parcial/view/login_view.dart';
 
 void main() {
   runApp(
-    DevicePreview(
-    enabled: !kReleaseMode,
-    builder: (context) => MainApp(), // Wrap your app
-  ),
+    DevicePreview(enabled: !kReleaseMode, builder: (context) => MainApp()),
   );
 }
 

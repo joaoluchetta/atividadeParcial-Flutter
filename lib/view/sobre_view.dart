@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_atividade_parcial/components/linha_icone_texto.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class SobreView extends StatelessWidget {
   const SobreView({super.key});
@@ -7,7 +8,7 @@ class SobreView extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF4F6F8),      
+      backgroundColor: const Color(0xFFF4F6F8),
       body: SingleChildScrollView(
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 30),
         child: Column(
@@ -90,7 +91,6 @@ Widget _buildCabecalho() {
 Widget _buildCardSobreApp() {
   return Card(
     elevation: 4,
-    //color: Color(0xFFF2F4F6),
     shadowColor: Colors.black,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
     child: Padding(
@@ -111,7 +111,22 @@ Widget _buildCardSobreApp() {
           ),
           const SizedBox(height: 20),
           ElevatedButton(
-            onPressed: () {},
+            onPressed: () async {
+              final Uri urlRepositorio = Uri.parse(
+                'https://github.com/joaoluchetta/atividadeParcial-Flutter',
+              );
+
+              if (await canLaunchUrl(urlRepositorio)) {
+                await launchUrl(
+                  urlRepositorio,
+                  mode: LaunchMode
+                      .externalApplication, // Força abrir no navegador (Chrome/Safari)
+                );
+              } else {
+                // Caso dê algum erro (ex: emulador sem navegador)
+                debugPrint('Não foi possível abrir o link: $urlRepositorio');
+              }
+            },
             style: ElevatedButton.styleFrom(
               backgroundColor: const Color(0xFF003280),
               foregroundColor: Colors.white,

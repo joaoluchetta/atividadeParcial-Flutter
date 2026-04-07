@@ -4,17 +4,13 @@ class LinhaIconeTexto extends StatelessWidget {
   final IconData icone;
   final String texto;
 
-  const LinhaIconeTexto({
-    super.key,
-    required this.icone,
-    required this.texto,
-  });
+  const LinhaIconeTexto({super.key, required this.icone, required this.texto});
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
-        Icon(icone, size: 18, color: const Color(0xFF003280)), 
+        Icon(icone, size: 18, color: const Color(0xFF003280)),
         const SizedBox(width: 10),
         Expanded(
           child: Text(

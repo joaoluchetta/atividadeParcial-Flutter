@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_atividade_parcial/view/agendamento_view.dart';
 import 'package:flutter_atividade_parcial/view/cadastro_cliente_view.dart';
+import 'package:flutter_atividade_parcial/view/modal_novo_agendamento.dart';
 import 'package:flutter_atividade_parcial/view/sobre_view.dart';
 
 class HomeView extends StatefulWidget {
@@ -14,16 +15,6 @@ class _HomeViewState extends State<HomeView> {
   // Váriavel para controlar qual aba está aberta
   int _abaAtual = 0;
 
-  final List<Widget> _telas = [
-    //Placeholder para a tela de listagem
-    const AgendamentoView(),
-
-    // Índice 1: Placeholder para a tela de Clientes (para não dar erro de limite)
-    const CadastroClienteView(),
-
-    const SobreView(),
-  ];
-
   void _mudarAba(int abaClicada) {
     setState(() {
       _abaAtual = abaClicada;
@@ -32,6 +23,12 @@ class _HomeViewState extends State<HomeView> {
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> telas = [
+      AgendamentoView(),
+      const CadastroClienteView(),
+      const SobreView(),
+    ];
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.white,
@@ -119,7 +116,6 @@ class _HomeViewState extends State<HomeView> {
 
           const SizedBox(width: 10),
 
-          // Se der tempo quero implementar as notificações
           IconButton(
             icon: const Icon(Icons.notifications, color: Colors.grey),
             onPressed: () {
@@ -130,14 +126,28 @@ class _HomeViewState extends State<HomeView> {
         ],
       ),
 
-      body: _telas[_abaAtual],
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          // Adiciona um novo card
-        },
-        backgroundColor: const Color(0xFF003280),
-        child: Icon(Icons.add, color: Colors.white, size: 40),
-      ),
+      body: telas[_abaAtual],
+      floatingActionButton: _abaAtual == 0
+          ? FloatingActionButton(
+              onPressed: () {
+                showModalBottomSheet(
+                  context: context,
+                  isScrollControlled: true,
+                  shape: const RoundedRectangleBorder(
+                    borderRadius: BorderRadius.vertical(
+                      top: Radius.circular(20),
+                    ),
+                  ),
+                  builder: (context) => const ModalNovoAgendamento(),
+                ).then((value) {
+                  // Quando o Modal fechar, a aba é recarregada para listar o card
+                  setState(() {});
+                });
+              },
+              backgroundColor: const Color(0xFF003280),
+              child: Icon(Icons.add, color: Colors.white, size: 40),
+            )
+          : null,
       bottomNavigationBar: BottomNavigationBar(
         selectedItemColor: Color(0xFF003280),
         selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
@@ -155,7 +165,7 @@ class _HomeViewState extends State<HomeView> {
         ],
 
         currentIndex: _abaAtual,
-        onTap: _mudarAba, // chamo a função de mudar a aba
+        onTap: _mudarAba,
       ),
     );
   }
