@@ -3,6 +3,7 @@ import 'package:flutter_atividade_parcial/view/agendamento_view.dart';
 import 'package:flutter_atividade_parcial/view/cadastro_cliente_view.dart';
 import 'package:flutter_atividade_parcial/view/modal_novo_agendamento.dart';
 import 'package:flutter_atividade_parcial/view/sobre_view.dart';
+import 'package:flutter_atividade_parcial/view/login_view.dart';
 
 class HomeView extends StatefulWidget {
   const HomeView({super.key});
@@ -65,7 +66,14 @@ class _HomeViewState extends State<HomeView> {
                     ElevatedButton(
                       onPressed: () {
                         Navigator.pop(context);
-                        Navigator.pop(context);
+
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const LoginView(),
+                          ),
+                          (Route<dynamic> route) => false, //
+                        );
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.red,
@@ -119,7 +127,13 @@ class _HomeViewState extends State<HomeView> {
           IconButton(
             icon: const Icon(Icons.notifications, color: Colors.grey),
             onPressed: () {
-              print("Abrir notificações");
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'Botão de notificação ainda não foi implementado!',
+                  ),
+                ),
+              );
             },
           ),
           const SizedBox(width: 10),

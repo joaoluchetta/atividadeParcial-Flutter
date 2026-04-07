@@ -181,8 +181,8 @@ class _ModalNovoAgendamentoState extends State<ModalNovoAgendamento> {
                     data: _dataController.text,
                     status: 'PENDENTE',
                     corBorda: _sortearCor(),
-                    cpf: '',
-                    telefone: '',
+                    cpf: _clienteSelecionado!.cpf,
+                    telefone: _clienteSelecionado!.telefone,
                   );
 
                   DadosRepository().adicionarAgendamento(novoAgendamento);

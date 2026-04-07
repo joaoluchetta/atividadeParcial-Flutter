@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_atividade_parcial/components/linha_detalhe.dart';
 import 'package:flutter_atividade_parcial/models/agendamento_model.dart';
 import 'package:flutter_atividade_parcial/repository/dados_repository.dart';
 
@@ -21,14 +22,14 @@ class AgendamentoCard extends StatelessWidget {
       corFundoStatus = const Color(0xFFE0F7FA);
       corTextoStatus = const Color(0xFF00796B);
     } else if (agendamento.status == 'PENDENTE') {
-      corFundoStatus = Colors.orange.shade100;
-      corTextoStatus = Colors.orange.shade900;
+      corFundoStatus = const Color(0xFFE5F0FA);
+      corTextoStatus = const Color(0xFF005EB8);
     } else if (agendamento.status == 'DESMARCADO') {
-      corFundoStatus = Colors.red.shade100;
-      corTextoStatus = Colors.red.shade900;
+      corFundoStatus = Color(0xFFFFEBEE);
+      corTextoStatus = Color(0xFFC62828);
     } else {
-      corFundoStatus = Colors.purple.shade100;
-      corTextoStatus = Colors.purple.shade900;
+      corFundoStatus = Color(0xFFE1BEE7);
+      corTextoStatus = Color(0xFF4A148C);
     }
 
     return Container(
@@ -110,7 +111,6 @@ class AgendamentoCard extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
-              // Botões
               Row(
                 children: [
                   Expanded(
@@ -118,23 +118,105 @@ class AgendamentoCard extends StatelessWidget {
                       onPressed: () {
                         showDialog(
                           context: context,
-                          builder: (context) => AlertDialog(
-                            title: Text(agendamento.nomeCliente),
-                            content: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text("CPF: ${agendamento.cpf}"),
-                                Text("Telefone: ${agendamento.telefone}"),
-                                Text("Status: ${agendamento.status}"),
-                              ],
+                          builder: (context) => Dialog(
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(20),
                             ),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: const Text("Fechar"),
+                            child: Padding(
+                              padding: const EdgeInsets.all(24),
+                              child: Column(
+                                mainAxisSize: MainAxisSize.min,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(10),
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue.shade50,
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        child: const Icon(
+                                          Icons.person,
+                                          color: Color(0xFF003280),
+                                          size: 28,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: Text(
+                                          agendamento.nomeCliente,
+                                          style: const TextStyle(
+                                            fontSize: 20,
+                                            fontWeight: FontWeight.bold,
+                                            color: Color(0xFF003280),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+
+                                  const Padding(
+                                    padding: EdgeInsets.symmetric(vertical: 20),
+                                    child: Divider(thickness: 1),
+                                  ),
+
+                                  LinhaDetalhe(
+                                    icone: Icons.badge,
+                                    titulo: "CPF",
+                                    valor: agendamento.cpf.isNotEmpty
+                                        ? agendamento.cpf
+                                        : 'Não informado',
+                                  ),
+                                  const SizedBox(height: 16),
+                                  LinhaDetalhe(
+                                    icone: Icons.phone,
+                                    titulo: "Telefone",
+                                    valor: agendamento.telefone.isNotEmpty
+                                        ? agendamento.telefone
+                                        : 'Não informado',
+                                  ),
+                                  const SizedBox(height: 16),
+                                  LinhaDetalhe(
+                                    icone: Icons.info_outline,
+                                    titulo: "Status",
+                                    valor: agendamento.status,
+                                  ),
+
+                                  const SizedBox(height: 30),
+
+                                  SizedBox(
+                                    width: double.infinity,
+                                    child: ElevatedButton(
+                                      onPressed: () => Navigator.pop(context),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: const Color(
+                                          0xFF003280,
+                                        ),
+                                        foregroundColor: Colors.white,
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 14,
+                                        ),
+                                        elevation: 0,
+                                      ),
+                                      child: const Text(
+                                        'FECHAR',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                            ],
+                            ),
                           ),
                         );
                       },
@@ -147,7 +229,7 @@ class AgendamentoCard extends StatelessWidget {
                         elevation: 0,
                       ),
                       child: const Text(
-                        'Details',
+                        'Detalhes',
                         style: TextStyle(fontWeight: FontWeight.bold),
                       ),
                     ),
