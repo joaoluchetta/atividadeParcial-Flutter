@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_atividade_parcial/services/auth_service.dart';
 import 'package:flutter_atividade_parcial/view/agendamento_view.dart';
 import 'package:flutter_atividade_parcial/view/cadastro_cliente_view.dart';
 import 'package:flutter_atividade_parcial/view/modal_novo_agendamento.dart';
+import 'package:flutter_atividade_parcial/view/pesquisa_view.dart';
+import 'package:flutter_atividade_parcial/view/profissionais_view.dart';
+import 'package:flutter_atividade_parcial/view/servicos_view.dart';
 import 'package:flutter_atividade_parcial/view/sobre_view.dart';
 import 'package:flutter_atividade_parcial/view/login_view.dart';
 
@@ -27,6 +31,8 @@ class _HomeViewState extends State<HomeView> {
     final List<Widget> telas = [
       AgendamentoView(),
       const CadastroClienteView(),
+      ServicosView(),
+      ProfissionaisView(),
       const SobreView(),
     ];
 
@@ -64,9 +70,10 @@ class _HomeViewState extends State<HomeView> {
                       ),
                     ),
                     ElevatedButton(
-                      onPressed: () {
+                      onPressed: () async {
                         Navigator.pop(context);
-
+                        await AuthService().sair();
+                        if (!context.mounted) return;
                         Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(
@@ -125,13 +132,13 @@ class _HomeViewState extends State<HomeView> {
           const SizedBox(width: 10),
 
           IconButton(
-            icon: const Icon(Icons.notifications, color: Colors.grey),
+            icon: const Icon(Icons.search, color: Color(0xFF003280)),
+            tooltip: 'Pesquisar clientes',
             onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text(
-                    'Botão de notificação ainda não foi implementado!',
-                  ),
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const PesquisaView(),
                 ),
               );
             },
@@ -163,17 +170,26 @@ class _HomeViewState extends State<HomeView> {
             )
           : null,
       bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: Color(0xFF003280),
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: const Color(0xFF003280),
+        unselectedItemColor: Colors.grey,
         selectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
         unselectedLabelStyle: const TextStyle(fontWeight: FontWeight.bold),
 
         items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Início'),
 
           BottomNavigationBarItem(
             icon: Icon(Icons.person_add),
             label: 'Clientes',
           ),
+
+          BottomNavigationBarItem(
+            icon: Icon(Icons.medical_services),
+            label: 'Serviços',
+          ),
+
+          BottomNavigationBarItem(icon: Icon(Icons.badge), label: 'Equipe'),
 
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Sobre'),
         ],

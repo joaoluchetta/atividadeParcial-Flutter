@@ -73,7 +73,7 @@ Widget _buildCabecalho() {
           borderRadius: BorderRadius.circular(20),
         ),
         child: const Text(
-          'Versão 1.0.0 (Alpha)',
+          'Versão 1.1.0 (Alpha)',
           style: TextStyle(
             color: Color(0xFF005050),
             fontWeight: FontWeight.bold,

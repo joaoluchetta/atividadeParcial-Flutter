@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_atividade_parcial/view/login_view.dart';
+import 'package:flutter_atividade_parcial/services/auth_service.dart';
 import 'package:mask_text_input_formatter/mask_text_input_formatter.dart';
 
 class CadastroView extends StatefulWidget {
@@ -12,7 +12,9 @@ class CadastroView extends StatefulWidget {
 class _CadastroViewState extends State<CadastroView> {
   bool _obscureText = true;
   bool _aceitouTermos = false;
+  bool _carregando = false;
 
+  final _authService = AuthService();
   final _formKey = GlobalKey<FormState>();
   final _nomeController = TextEditingController();
   final _emailController = TextEditingController();
@@ -25,6 +27,78 @@ class _CadastroViewState extends State<CadastroView> {
     filter: {"#": RegExp(r'[0-9]')},
     type: MaskAutoCompletionType.lazy,
   );
+
+  @override
+  void dispose() {
+    _nomeController.dispose();
+    _emailController.dispose();
+    _telefoneController.dispose();
+    _senhaController.dispose();
+    _confirmarSenhaController.dispose();
+    super.dispose();
+  }
+
+  /// Valida a força da senha conforme RF002:
+  /// mínimo 8 caracteres, com maiúscula, minúscula, número e caractere especial.
+  String? _validarSenhaForte(String? value) {
+    if (value == null || value.isEmpty) return 'Informe uma senha';
+    if (value.length < 8) return 'Mínimo de 8 caracteres';
+    if (!value.contains(RegExp(r'[A-Z]'))) {
+      return 'Inclua ao menos 1 letra maiúscula';
+    }
+    if (!value.contains(RegExp(r'[a-z]'))) {
+      return 'Inclua ao menos 1 letra minúscula';
+    }
+    if (!value.contains(RegExp(r'[0-9]'))) {
+      return 'Inclua ao menos 1 número';
+    }
+    if (!value.contains(RegExp(r'[!@#$%^&*(),.?":{}|<>_\-]'))) {
+      return 'Inclua ao menos 1 caractere especial';
+    }
+    return null;
+  }
+
+  Future<void> _fazerCadastro() async {
+    if (!_aceitouTermos) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Aceite os Termos de Serviço para continuar.'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _carregando = true);
+    try {
+      await _authService.registrar(
+        nome: _nomeController.text,
+        email: _emailController.text,
+        telefone: _telefoneController.text,
+        senha: _senhaController.text,
+      );
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Conta criada com sucesso! Faça login.'),
+          backgroundColor: Colors.green,
+        ),
+      );
+      Navigator.pop(context);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().replaceFirst('Exception: ', '')),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _carregando = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -179,13 +253,7 @@ class _CadastroViewState extends State<CadastroView> {
                             borderSide: BorderSide.none,
                           ),
                         ),
-                        validator: (value) {
-                          if (value == null || value.isEmpty) {
-                            return 'Informe uma senha';
-                          }
-                          if (value.length < 6) return 'Mínimo 6 caracteres';
-                          return null;
-                        },
+                        validator: _validarSenhaForte,
                       ),
                       SizedBox(height: 20),
                       TextFormField(
@@ -283,28 +351,7 @@ class _CadastroViewState extends State<CadastroView> {
 
                       // BOTÃO DE CADASTRAR
                       OutlinedButton(
-                        onPressed: () {
-                          if (!_aceitouTermos) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  'Aceite os Termos de Serviço para continuar.',
-                                ),
-                                backgroundColor: Colors.red,
-                              ),
-                            );
-                            return;
-                          }
-
-                          if (_formKey.currentState!.validate()) {
-                            Navigator.pop(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const LoginView(),
-                              ),
-                            );
-                          }
-                        },
+                        onPressed: _carregando ? null : _fazerCadastro,
                         style: OutlinedButton.styleFrom(
                           side: const BorderSide(
                             color: Color(0xFF003280),
@@ -315,14 +362,23 @@ class _CadastroViewState extends State<CadastroView> {
                             borderRadius: BorderRadius.circular(15),
                           ),
                         ),
-                        child: const Text(
-                          'CADASTRAR',
-                          style: TextStyle(
-                            color: Color(0xFF003280),
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        child: _carregando
+                            ? const SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: CircularProgressIndicator(
+                                  color: Color(0xFF003280),
+                                  strokeWidth: 3,
+                                ),
+                              )
+                            : const Text(
+                                'CADASTRAR',
+                                style: TextStyle(
+                                  color: Color(0xFF003280),
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                       ),
 
                       SizedBox(height: 20),

@@ -1,17 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_atividade_parcial/components/linha_detalhe.dart';
 import 'package:flutter_atividade_parcial/models/agendamento_model.dart';
-import 'package:flutter_atividade_parcial/repository/dados_repository.dart';
+import 'package:flutter_atividade_parcial/services/firestore_service.dart';
 
 class AgendamentoCard extends StatelessWidget {
   final Agendamento agendamento;
-  final VoidCallback onUpdate;
 
-  const AgendamentoCard({
-    super.key,
-    required this.agendamento,
-    required this.onUpdate,
-  });
+  const AgendamentoCard({super.key, required this.agendamento});
 
   @override
   Widget build(BuildContext context) {
@@ -53,15 +48,19 @@ class AgendamentoCard extends StatelessWidget {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    agendamento.tipo.toUpperCase(),
-                    style: const TextStyle(
-                      color: Color(0xFF003280),
-                      fontWeight: FontWeight.bold,
-                      fontSize: 12,
-                      letterSpacing: 1,
+                  Expanded(
+                    child: Text(
+                      agendamento.servico.toUpperCase(),
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        color: Color(0xFF003280),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 12,
+                        letterSpacing: 1,
+                      ),
                     ),
                   ),
+                  const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
@@ -164,6 +163,20 @@ class AgendamentoCard extends StatelessWidget {
                                   ),
 
                                   LinhaDetalhe(
+                                    icone: Icons.medical_services,
+                                    titulo: "Serviço",
+                                    valor: agendamento.servico,
+                                  ),
+                                  const SizedBox(height: 16),
+                                  if (agendamento.profissional.isNotEmpty) ...[
+                                    LinhaDetalhe(
+                                      icone: Icons.badge_outlined,
+                                      titulo: "Profissional",
+                                      valor: agendamento.profissional,
+                                    ),
+                                    const SizedBox(height: 16),
+                                  ],
+                                  LinhaDetalhe(
                                     icone: Icons.badge,
                                     titulo: "CPF",
                                     valor: agendamento.cpf.isNotEmpty
@@ -242,13 +255,32 @@ class AgendamentoCard extends StatelessWidget {
                     ),
                     child: PopupMenuButton<String>(
                       icon: const Icon(Icons.more_vert, color: Colors.black54),
-                      onSelected: (String valorSelecionado) {
-                        if (valorSelecionado == 'Deletar') {
-                          DadosRepository().removerAgendamento(agendamento);
-                        } else {
-                          agendamento.status = valorSelecionado;
+                      onSelected: (String valorSelecionado) async {
+                        final firestore = FirestoreService();
+                        final messenger = ScaffoldMessenger.of(context);
+                        try {
+                          if (valorSelecionado == 'Deletar') {
+                            await firestore.remover(
+                              'agendamentos',
+                              agendamento.id!,
+                            );
+                          } else {
+                            await firestore.atualizar(
+                              'agendamentos',
+                              agendamento.id!,
+                              {'status': valorSelecionado},
+                            );
+                          }
+                        } catch (e) {
+                          messenger.showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                e.toString().replaceFirst('Exception: ', ''),
+                              ),
+                              backgroundColor: Colors.red,
+                            ),
+                          );
                         }
-                        onUpdate();
                       },
                       itemBuilder: (BuildContext context) =>
                           <PopupMenuEntry<String>>[

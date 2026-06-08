@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_atividade_parcial/services/auth_service.dart';
 
 class RecuperarSenhaView extends StatefulWidget {
   const RecuperarSenhaView({super.key});
@@ -8,11 +9,45 @@ class RecuperarSenhaView extends StatefulWidget {
 }
 
 class _RecuperarSenhaViewState extends State<RecuperarSenhaView> {
+  final _authService = AuthService();
   final _formKey = GlobalKey<FormState>();
   final _emailController = TextEditingController();
-  final _novaSenhaController = TextEditingController();
-  final _confirmarSenhaController = TextEditingController();
-  final bool _obscureText = true;
+  bool _carregando = false;
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _enviarEmail() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _carregando = true);
+    try {
+      await _authService.recuperarSenha(email: _emailController.text);
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'E-mail de recuperação enviado! Verifique sua caixa de entrada.',
+          ),
+          backgroundColor: Colors.green,
+        ),
+      );
+      Navigator.pop(context);
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().replaceFirst('Exception: ', '')),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _carregando = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,42 +86,28 @@ class _RecuperarSenhaViewState extends State<RecuperarSenhaView> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'Informe seu e-mail cadastrado e enviaremos um link '
+                        'para você redefinir sua senha.',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(color: Colors.grey, height: 1.5),
+                      ),
                       const SizedBox(height: 20),
 
                       TextFormField(
                         controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
                         decoration: _inputStyle(
                           'E-mail cadastrado',
                           Icons.email,
                         ),
-                        validator: (value) =>
-                            (value == null || !value.contains('@'))
-                            ? 'E-mail inválido'
-                            : null,
-                      ),
-                      const SizedBox(height: 20),
-
-                      TextFormField(
-                        controller: _novaSenhaController,
-                        obscureText: _obscureText,
-                        decoration: _inputStyle('Nova Senha', Icons.lock),
-                        validator: (value) =>
-                            (value == null || value.length < 6)
-                            ? 'Mínimo 6 caracteres'
-                            : null,
-                      ),
-                      const SizedBox(height: 20),
-
-                      TextFormField(
-                        controller: _confirmarSenhaController,
-                        obscureText: _obscureText,
-                        decoration: _inputStyle(
-                          'Confirmar Nova Senha',
-                          Icons.lock_outline,
-                        ),
                         validator: (value) {
-                          if (value != _novaSenhaController.text) {
-                            return 'As senhas não coincidem';
+                          if (value == null || value.isEmpty) {
+                            return 'Informe seu e-mail';
+                          }
+                          if (!value.contains('@') || !value.contains('.')) {
+                            return 'E-mail inválido';
                           }
                           return null;
                         },
@@ -94,16 +115,7 @@ class _RecuperarSenhaViewState extends State<RecuperarSenhaView> {
                       const SizedBox(height: 30),
 
                       ElevatedButton(
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Senha alterada com sucesso!'),
-                              ),
-                            );
-                            Navigator.pop(context);
-                          }
-                        },
+                        onPressed: _carregando ? null : _enviarEmail,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF003280),
                           foregroundColor: Colors.white,
@@ -112,10 +124,19 @@ class _RecuperarSenhaViewState extends State<RecuperarSenhaView> {
                             borderRadius: BorderRadius.circular(15),
                           ),
                         ),
-                        child: const Text(
-                          'ALTERAR SENHA',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
+                        child: _carregando
+                            ? const SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 3,
+                                ),
+                              )
+                            : const Text(
+                                'ENVIAR E-MAIL DE RECUPERAÇÃO',
+                                style: TextStyle(fontWeight: FontWeight.bold),
+                              ),
                       ),
                     ],
                   ),

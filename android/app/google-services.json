@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "649867034699",
+    "project_id": "schedly-app-mobile2",
+    "storage_bucket": "schedly-app-mobile2.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:649867034699:android:eedd2dfcbbbd97c9504dce",
+        "android_client_info": {
+          "package_name": "com.example.flutter_atividade_parcial"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBhKhdg3KFCY4ZvXRgdRza2CBhbg42qHFU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

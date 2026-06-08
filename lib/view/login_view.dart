@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_atividade_parcial/services/auth_service.dart';
 import 'package:flutter_atividade_parcial/view/cadastro_view.dart';
 import 'package:flutter_atividade_parcial/view/home_view.dart';
 import 'package:flutter_atividade_parcial/view/recuperar_senha_view.dart';
@@ -12,8 +13,46 @@ class LoginView extends StatefulWidget {
 
 class _LoginViewState extends State<LoginView> {
   bool _obscureText = true;
+  bool _carregando = false;
 
+  final _authService = AuthService();
   final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _senhaController = TextEditingController();
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _senhaController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _fazerLogin() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    setState(() => _carregando = true);
+    try {
+      await _authService.entrar(
+        email: _emailController.text,
+        senha: _senhaController.text,
+      );
+      if (!mounted) return;
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeView()),
+      );
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(e.toString().replaceFirst('Exception: ', '')),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) setState(() => _carregando = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -88,7 +127,8 @@ class _LoginViewState extends State<LoginView> {
                       SizedBox(height: 20),
 
                       TextFormField(
-                        keyboardType: TextInputType.name,
+                        controller: _emailController,
+                        keyboardType: TextInputType.emailAddress,
                         style: const TextStyle(
                           fontSize: 20,
                           fontWeight: FontWeight.w500,
@@ -117,6 +157,7 @@ class _LoginViewState extends State<LoginView> {
                       SizedBox(height: 20),
 
                       TextFormField(
+                        controller: _senhaController,
                         obscureText: _obscureText,
                         keyboardType: TextInputType.visiblePassword,
                         style: const TextStyle(
@@ -190,16 +231,7 @@ class _LoginViewState extends State<LoginView> {
                       const SizedBox(height: 30),
 
                       ElevatedButton(
-                        onPressed: () {
-                          if (_formKey.currentState!.validate()) {
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const HomeView(),
-                              ),
-                            );
-                          }
-                        },
+                        onPressed: _carregando ? null : _fazerLogin,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF003280),
                           foregroundColor: Colors.white,
@@ -209,13 +241,22 @@ class _LoginViewState extends State<LoginView> {
                           ),
                           elevation: 2,
                         ),
-                        child: const Text(
-                          'ENTRAR',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
+                        child: _carregando
+                            ? const SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                  strokeWidth: 3,
+                                ),
+                              )
+                            : const Text(
+                                'ENTRAR',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
                       ),
 
                       const SizedBox(height: 15),

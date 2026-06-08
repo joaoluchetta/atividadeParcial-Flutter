@@ -1,6 +1,8 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_atividade_parcial/components/agendamento_card.dart';
-import 'package:flutter_atividade_parcial/repository/dados_repository.dart';
+import 'package:flutter_atividade_parcial/models/agendamento_model.dart';
+import 'package:flutter_atividade_parcial/services/firestore_service.dart';
 
 class AgendamentoView extends StatefulWidget {
   const AgendamentoView({super.key});
@@ -21,20 +23,10 @@ class _AgendamentoViewState extends State<AgendamentoView> {
     'Reposição',
   ];
 
+  final _firestore = FirestoreService();
+
   @override
   Widget build(BuildContext context) {
-    final listaCompleta = DadosRepository().listarAgendamentos();
-    final listaParaExibir = listaCompleta.where((agendamento) {
-      final bateNome = agendamento.nomeCliente.toLowerCase().contains(
-        _buscaNome.toLowerCase(),
-      );
-      final bateStatus =
-          _statusSelecionado == 'Todos' ||
-          agendamento.status.toUpperCase() == _statusSelecionado.toUpperCase();
-
-      return bateNome && bateStatus;
-    }).toList();
-
     return Scaffold(
       backgroundColor: const Color(0xFFF4F6F8),
       body: Padding(
@@ -61,27 +53,65 @@ class _AgendamentoViewState extends State<AgendamentoView> {
             _buildSessaoFiltros(),
             const SizedBox(height: 20),
 
-            // --- LISTA DE AGENDAMENTOS ---
+            // --- LISTA DE AGENDAMENTOS EM TEMPO REAL (RF005) ---
             Expanded(
-              child: listaParaExibir.isEmpty
-                  ? const Center(
+              child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
+                stream: _firestore.stream('agendamentos'),
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+                  if (snapshot.hasError) {
+                    return const Center(
                       child: Text(
-                        "Nenhum agendamento encontrado com esses filtros.",
+                        'Erro ao carregar agendamentos.',
+                        style: TextStyle(color: Colors.red, fontSize: 16),
+                      ),
+                    );
+                  }
+
+                  final docs = (snapshot.data?.docs ?? []).toList()
+                    ..sort((a, b) {
+                      final ta = a.data()['criadoEm'] as Timestamp?;
+                      final tb = b.data()['criadoEm'] as Timestamp?;
+                      if (ta == null) return 1;
+                      if (tb == null) return -1;
+                      return tb.compareTo(ta); // mais recentes primeiro
+                    });
+
+                  final todos =
+                      docs.map((doc) => Agendamento.fromDoc(doc)).toList();
+
+                  final listaParaExibir = todos.where((agendamento) {
+                    final bateNome = agendamento.nomeCliente
+                        .toLowerCase()
+                        .contains(_buscaNome.toLowerCase());
+                    final bateStatus = _statusSelecionado == 'Todos' ||
+                        agendamento.status.toUpperCase() ==
+                            _statusSelecionado.toUpperCase();
+                    return bateNome && bateStatus;
+                  }).toList();
+
+                  if (listaParaExibir.isEmpty) {
+                    return const Center(
+                      child: Text(
+                        "Nenhum agendamento encontrado.",
                         style: TextStyle(color: Colors.grey, fontSize: 16),
                       ),
-                    )
-                  : ListView.builder(
-                      padding: const EdgeInsets.only(bottom: 100),
-                      itemCount: listaParaExibir.length,
-                      itemBuilder: (context, index) {
-                        return AgendamentoCard(
-                          agendamento: listaParaExibir[index],
-                          onUpdate: () {
-                            setState(() {});
-                          },
-                        );
-                      },
-                    ),
+                    );
+                  }
+
+                  return ListView.builder(
+                    padding: const EdgeInsets.only(bottom: 100),
+                    itemCount: listaParaExibir.length,
+                    itemBuilder: (context, index) {
+                      return AgendamentoCard(
+                        agendamento: listaParaExibir[index],
+                      );
+                    },
+                  );
+                },
+              ),
             ),
           ],
         ),

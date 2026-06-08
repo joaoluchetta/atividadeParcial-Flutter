@@ -1,0 +1,39 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "schedly-app-mobile2",
+          "appId": "1:649867034699:android:eedd2dfcbbbd97c9504dce",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "schedly-app-mobile2",
+          "configurations": {
+            "android": "1:649867034699:android:eedd2dfcbbbd97c9504dce",
+            "ios": "1:649867034699:ios:1572728e70c29d8c504dce",
+            "macos": "1:649867034699:ios:1572728e70c29d8c504dce",
+            "web": "1:649867034699:web:b07adba812f8b181504dce",
+            "windows": "1:649867034699:web:4db8ed35bb30f06c504dce"
+          }
+        }
+      }
+    }
+  },
+  "hosting": {
+    "public": "build/web",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }
+}
